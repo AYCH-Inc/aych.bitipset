@@ -141,12 +141,12 @@ class IPSet {
 		$snode =& $node;
 		$curBit = 0;
 		while ( 1 ) {
-			if ( $node === true ) {
+			if ( is_string( $node ) ) {
 				// already added a larger supernet, no need to go deeper
 				return;
 			} elseif ( $curBit == $mask ) {
 				// this may wipe out deeper subnets from earlier
-				$snode = true;
+				$snode = $cidr;
 				return;
 			} elseif ( $node === false ) {
 				// create new subarray to go deeper
@@ -194,7 +194,7 @@ class IPSet {
 	 * If $ip is unparseable, inet_pton may issue an E_WARNING to that effect
 	 *
 	 * @param string $ip string IPv[46] address
-	 * @return bool True is match success, false is match failure
+	 * @return string|bool the matched CDIR when success, false when failure
 	 */
 	public function match( $ip ) {
 		$raw = inet_pton( $ip );
@@ -210,7 +210,7 @@ class IPSet {
 		}
 
 		$curBit = 0;
-		while ( $node !== true && $node !== false ) {
+		while ( !is_string( $node ) && $node !== false ) {
 			if ( isset( $node['comp'] ) ) {
 				// compressed node, matches 1 whole byte on a byte boundary
 				if ( $rawOrd[$curBit >> 3] != $node['comp'] ) {
